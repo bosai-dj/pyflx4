@@ -25,6 +25,10 @@ jobs:
         with:
           python-version: '3.x'
       - run: pip install --upgrade build twine
+      # python-rtmidi ships no Linux wheels for the newest Python, and '3.x' above
+      # resolves to exactly that, so the install builds it from source. Same
+      # headers CI installs — release must not be the place this is discovered.
+      - run: sudo apt-get update && sudo apt-get install -y libasound2-dev
       - run: pip install -e . pytest && python -m pytest tests/ -q
       # The tag is the only place the version is stated twice. Publishing v0.2.0 from
       # a tree that still says 0.1.9 yields a PyPI release nobody can explain later.
