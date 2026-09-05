@@ -1,0 +1,71 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Least privilege by default. Naming ANY permission sets every unnamed one to `none`,
+# so a job needing more must say so explicitly rather than inheriting it.
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Every version `requires-python` and the classifiers claim, both ends
+        # included. Claiming a floor without testing it is how 3.12-only syntax
+        # reaches someone on 3.10 whose first news of it is a SyntaxError.
+        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
+    steps:
+      # Actions are pinned to a full-length commit SHA — the only way to consume one
+      # immutably; a tag can be moved under you. The trailing comment is the human-
+      # readable version, and Dependabot rewrites both together.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Without this the job's GITHUB_TOKEN is left in .git/config where any later
+          # step — or anything they invoke — can read it.
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+      # The suite drives fake MIDI ports rather than a device, so it runs anywhere.
+      # python-rtmidi is still installed because the controller imports it, and a
+      # wheel that fails to build on a new Python is something to find here.
+      - run: pip install -e . pytest
+      - run: python -m pytest tests/ -q
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/ruff-action@278981a28ce3188b1e39527901f38254bf3aac89 # v4.1.0
+        with:
+          args: check
+
+  # The map is meant to be readable without the hardware bindings — that is what
+  # makes it useful to people generating mappings for other software. Nothing else
+  # would notice if a stray top-level `import rtmidi` broke it.
+  map-imports-without-rtmidi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.x'
+      - name: import the map with python-rtmidi absent
+        run: |
+          pip install -e . --no-deps
+          python -c "
+          from pyflx4 import CC, NOTE, provenance
+          assert CC['EQ_LOW'] == 0x0F
+          assert provenance('CC', 'EQ_LOW').name == 'MIXXX'
+          print('map imported without rtmidi')
+          "

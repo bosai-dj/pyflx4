@@ -1,0 +1,45 @@
+name: Bug report
+description: A control does nothing, or moves the wrong thing
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: pyflx4 version
+      placeholder: "0.1.0"
+    validations: { required: true }
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of problem
+      options:
+        - A control moves the wrong thing (mapping)
+        - A control does nothing
+        - Input from the controller is decoded wrongly
+        - LEDs
+        - Connection / device not found
+        - Something else
+    validations: { required: true }
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected, and what happened
+      description: >-
+        For anything mapping-related, the raw MIDI is the whole story. `DDJFLX4(debug=True)`
+        keeps a rolling log in `.midi_log`, or use any MIDI monitor. Paste what the
+        controller actually sent or what pyflx4 actually emitted.
+    validations: { required: true }
+  - type: textarea
+    id: repro
+    attributes:
+      label: A test that reproduces it, if you can write one
+      description: >-
+        The suite drives fake MIDI ports and needs no hardware — see `tests/conftest.py`.
+        Copying an existing test in `tests/test_tools.py` usually takes ten minutes and
+        makes a mapping report unambiguous.
+      render: python
+  - type: input
+    id: firmware
+    attributes:
+      label: Controller firmware version, if you know it
+      description: Mapping differences between firmware revisions are plausible and hard to guess at.

@@ -1,0 +1,56 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pyflx4"
+version = "0.1.0"
+description = "Python control for the Pioneer DDJ-FLX4 DJ controller, with a MIDI map that states its own provenance"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Hemanth Chittanuru", email = "hchittanuru3@gmail.com" }]
+keywords = ["midi", "dj", "controller", "pioneer", "ddj-flx4", "ddj", "flx4", "rtmidi"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Multimedia :: Sound/Audio :: MIDI",
+  "Typing :: Typed",
+]
+dependencies = ["python-rtmidi>=1.5.8"]
+
+[project.urls]
+Homepage = "https://github.com/bosai-dj/pyflx4"
+Source = "https://github.com/bosai-dj/pyflx4"
+Issues = "https://github.com/bosai-dj/pyflx4/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pyflx4"]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.ruff]
+line-length = 100
+
+# Selected explicitly: ruff's defaults change between releases, and a lint set that
+# shifts under you turns a green main red without anyone touching the code.
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "RUF", "S", "BLE"]
+ignore = [
+  "E501",    # long lines are the aligned MIDI tables; they read better wide
+  "RUF002",  # en dashes in prose are deliberate
+  "RUF003",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]  # asserts are the point of a test
