@@ -8,9 +8,15 @@ and that every Python version the metadata advertises is actually run.
 
 import pathlib
 
-import tomllib
+import pytest
 
 import pyflx4
+
+# tomllib is stdlib from 3.11. Everything asserted below is a property of the
+# metadata rather than of the interpreter, so checking it on the versions that can
+# read a TOML file unaided is full coverage — and cheaper than taking a
+# dev-dependency on tomli for one row of the matrix.
+tomllib = pytest.importorskip("tomllib", reason="stdlib tomllib requires Python 3.11+")
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PYPROJECT = tomllib.loads((ROOT / "pyproject.toml").read_text())
