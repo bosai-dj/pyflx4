@@ -12,6 +12,15 @@ value came from.
 pip install pyflx4
 ```
 
+On Linux with a recent Python, `python-rtmidi` may have no prebuilt wheel and will
+build from source, which needs the ALSA headers:
+
+```bash
+sudo apt-get install libasound2-dev
+```
+
+macOS and Windows install from wheels with nothing extra.
+
 ```python
 from pyflx4 import DDJFLX4, DDJFLX4Tools
 
@@ -83,9 +92,10 @@ That is how this library's own tests assert the exact bytes each call emits.
 ## Reading the map without the hardware bindings
 
 `from pyflx4 import CC, NOTE` works without `python-rtmidi` installed — the
-controller classes are imported lazily. The map is useful on its own, for
-generating a mapping for other software or for checking your own values against
-these.
+controller classes are imported lazily, and even touching `DDJFLX4` does not load
+it until you actually open a port. The map is useful on its own, for generating a
+mapping for other software or for checking your own values against these — and it
+stays usable on a machine where the MIDI bindings will not build.
 
 ## Related
 

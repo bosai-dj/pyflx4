@@ -32,9 +32,13 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ matrix.python-version }}
+      # python-rtmidi ships no Linux wheels for the newest Python versions, so pip
+      # falls back to building it, which needs the ALSA headers. Users on those
+      # versions hit exactly this; installing it here means CI hits it first.
+      - run: sudo apt-get update && sudo apt-get install -y libasound2-dev
       # The suite drives fake MIDI ports rather than a device, so it runs anywhere.
       # python-rtmidi is still installed because the controller imports it, and a
-      # wheel that fails to build on a new Python is something to find here.
+      # build that breaks on a new Python is something to find here.
       - run: pip install -e . pytest
       - run: python -m pytest tests/ -q
 
